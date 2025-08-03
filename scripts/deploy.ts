@@ -1,44 +1,19 @@
-import { ethers, run, network } from "hardhat"
-
-const developmentChains = ["hardhat", "localhost"];
+import hre from "hardhat";
 
 async function main() {
-  const GearFactory = await ethers.getContractFactory("GearFactory");
-  const gearFactory = await GearFactory.deploy();
-  const libAddress = await gearFactory.getAddress();
-  const GearFight = await ethers.getContractFactory("GearFight", {
-      libraries: {
-          GearFactory: libAddress,
-      }
-  });
-  const gearFight = await GearFight.deploy();
+  const [deployer] = await hre.viem.getWalletClients();
 
-  console.log("GearFactory deployed to:", await gearFactory.getAddress());
-  console.log("GearFight deployed to:", await gearFight.getAddress());
+  console.log("Deploying contracts with the account:", deployer.account.address);
 
-  // We only verify on a testnet!
-  if (!developmentChains.includes(network.name)) {
-    console.log("Deployed! Waiting before verification...");
-    await gearFight.deploymentTransaction()!.wait(6);
-    await verify(await gearFactory.getAddress(), []);
-    await verify(await gearFight.getAddress(), []);
-  }
-}
+  // Deploy the WeaponFactory contract first
+  console.log("\nDeploying WeaponFactory...");
+  const weaponFactory = await hre.viem.deployContract("WeaponFactory", [deployer.account.address]);
+  console.log("WeaponFactory deployed to:", weaponFactory.address);
 
-const verify = async (contractAddress: string, args: any[]) => {
-  console.log("Verifying contract...");
-  try {
-    await run("verify:verify", {
-      address: contractAddress,
-      constructorArguments: args,
-    });
-  } catch (e: any) {
-    if (e.message.toLowerCase().includes("already verified")) {
-      console.log("Already verified!");
-    } else {
-      console.log(e);
-    }
-  }
+  // Deploy the Weapon contract with the WeaponFactory address
+  console.log("\nDeploying Weapon contract...");
+  const weapon = await hre.viem.deployContract("Weapon", [deployer.account.address, weaponFactory.address]);
+  console.log("Weapon contract deployed to:", weapon.address);
 }
 
 main()
@@ -46,4 +21,4 @@ main()
   .catch((error) => {
     console.error(error);
     process.exit(1);
-  })
+  });

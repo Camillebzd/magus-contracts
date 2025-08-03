@@ -1,14 +1,17 @@
 {
-  "name": "gearfight-contracts",
-  "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^3.0.0",
-    "@nomicfoundation/hardhat-verify": "^2.1.0",
-    "@types/node": "^20.4.8",
-    "hardhat": "^2.22.19",
-    "typechain": "^8.3.1"
+  "name": "magus-contracts",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "dependencies": {
-    "@openzeppelin/contracts": "^4.9.3",
-    "dotenv": "^16.3.1"
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox-viem": "^4.1.0",
+    "@openzeppelin/contracts": "^5.4.0",
+    "dotenv": "^17.2.1",
+    "hardhat": "^2.26.1"
   }
 }

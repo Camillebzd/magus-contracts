@@ -1,0 +1,27 @@
+{
+  "0": {
+    "name": "Basic sword",
+    "description": "A basic sword for beginners.",
+    "image": "https://example.com/basic-sword.png",
+    "weaponStats": {
+      "health": 120,
+      "speed": 17,
+      "mind": 10,
+      "offensiveStats": {
+        "sharpDamage": 20,
+        "bluntDamage": 11,
+        "burnDamage": 18,
+        "pierce": 7,
+        "lethality": 4
+      },
+      "defensiveStats": {
+        "sharpResistance": 22,
+        "bluntResistance": 18,
+        "burnResistance": 18,
+        "guard": 20
+      },
+      "handling": 12
+    },
+    "abilities": ["Slice", "Heavy slash", "Quick bash", "Dragon curse"]
+  }
+}
