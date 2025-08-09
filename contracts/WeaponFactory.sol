@@ -74,6 +74,7 @@ contract WeaponFactory is Ownable {
             image: image,
             level: 1,
             stage: 1,
+            weaponType: weaponType,
             weaponStats: stats,
             xp: 0,
             abilities: abilities

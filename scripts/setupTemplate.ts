@@ -10,7 +10,7 @@ async function main() {
     deployer.account.address
   );
 
-  const weaponFactoryAddress = "0x5fbdb2315678afecb367f032d93f642f64180aa3"; // Replace with actual weapon contract address
+  const weaponFactoryAddress = "0xc63b2e0922432ce5ebe5046089bc672d34bdfa57"; // Replace with actual weapon contract address
   const weaponFactory = await hre.viem.getContractAt(
     "WeaponFactory",
     weaponFactoryAddress
@@ -30,6 +30,8 @@ async function main() {
       initialTemplate.abilities,
     ],
   );
+
+  console.log("Weapon template set successfully");
 }
 
 main()

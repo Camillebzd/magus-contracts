@@ -62,7 +62,8 @@ library WeaponMetadata {
             abi.encodePacked(
                 '{"trait_type":"Level","value":', weapon.level.toString(), '},',
                 '{"trait_type":"Stage","value":', weapon.stage.toString(), '},',
-                '{"trait_type":"XP","value":', weapon.xp.toString(), '}'
+                '{"trait_type":"XP","value":', weapon.xp.toString(), '},',
+                '{"trait_type":"Weapon Type","value":"', _weaponTypeToString(weapon.weaponType), '"}'
             )
         );
     }
@@ -131,5 +132,16 @@ library WeaponMetadata {
                 '{"trait_type":"Abilities","value":"', abilitiesString, '"}'
             )
         );
+    }
+
+    /**
+     * @dev Converts WeaponType enum to string
+     */
+    function _weaponTypeToString(WeaponTypes.WeaponType weaponType) private pure returns (string memory) {
+        if (weaponType == WeaponTypes.WeaponType(0)) return "Sword";
+        if (weaponType == WeaponTypes.WeaponType(1)) return "Axe";
+        if (weaponType == WeaponTypes.WeaponType(2)) return "Bow";
+        if (weaponType == WeaponTypes.WeaponType(3)) return "Staff";
+        return "Unknown";
     }
 }

@@ -116,6 +116,7 @@ describe("Weapon", function () {
       expect(weaponData.level).to.equal(1);
       expect(weaponData.stage).to.equal(1);
       expect(weaponData.xp).to.equal(0);
+      expect(weaponData.weaponType).to.equal(WeaponType.SWORD);
       expect(weaponData.weaponStats).to.deep.equal(expectedTemplate.weaponStats);
       expect(weaponData.abilities).to.deep.equal(expectedTemplate.abilities);
     });
@@ -148,6 +149,7 @@ describe("Weapon", function () {
       expect(attributes["Level"]).to.equal(1);
       expect(attributes["Stage"]).to.equal(1);
       expect(attributes["XP"]).to.equal(0);
+      expect(attributes["Weapon Type"]).to.equal("Sword");
       expect(attributes["Health"]).to.equal(expectedData.weaponStats.health);
       expect(attributes["Speed"]).to.equal(expectedData.weaponStats.speed);
       expect(attributes["Mind"]).to.equal(expectedData.weaponStats.mind);
@@ -202,6 +204,7 @@ describe("Weapon", function () {
           },
           handling: 9999,
         },
+        weaponType: WeaponType.SWORD,
         xp: 9999,
         abilities: ["Hack"],
       };
@@ -210,9 +213,12 @@ describe("Weapon", function () {
 
       const weaponData = await weapon.read.getWeapon([0n]);
       expect(weaponData.name).to.equal("Hacker Sword");
+      expect(weaponData.description).to.equal("This sword will hack the game");
+      expect(weaponData.image).to.equal("https://example.com/hack.png");
       expect(weaponData.level).to.equal(100);
       expect(weaponData.stage).to.equal(10);
       expect(weaponData.xp).to.equal(9999);
+      expect(weaponData.weaponType).to.equal(WeaponType.SWORD);
       expect(weaponData.weaponStats).to.deep.equal(customWeapon.weaponStats);
       expect(weaponData.abilities).to.deep.equal(customWeapon.abilities);
     });
@@ -245,6 +251,7 @@ describe("Weapon", function () {
           },
           handling: 9999,
         },
+        weaponType: WeaponType.SWORD,
         xp: 9999,
         identity: "Hacked",
         abilities: ["Hack"],
