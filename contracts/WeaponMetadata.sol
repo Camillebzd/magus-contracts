@@ -55,13 +55,13 @@ library WeaponMetadata {
     }
 
     /**
-     * @dev Generates basic weapon attributes (level, stage, xp)
+     * @dev Generates basic weapon attributes (level, tier, xp)
      */
     function _generateBasicAttributes(WeaponTypes.WeaponData memory weapon) private pure returns (string memory) {
         return string(
             abi.encodePacked(
                 '{"trait_type":"Level","value":', weapon.level.toString(), '},',
-                '{"trait_type":"Stage","value":', weapon.stage.toString(), '},',
+                '{"trait_type":"Tier","value":', weapon.tier.toString(), '},',
                 '{"trait_type":"XP","value":', weapon.xp.toString(), '},',
                 '{"trait_type":"Weapon Type","value":"', _weaponTypeToString(weapon.weaponType), '"}'
             )

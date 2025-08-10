@@ -81,7 +81,7 @@ describe("Weapon Factory", function () {
       );
       expect(swordTemplateOnChain.image).to.equal(swordTemplateOffChain.image);
       expect(swordTemplateOnChain.level).to.equal(1);
-      expect(swordTemplateOnChain.stage).to.equal(1);
+      expect(swordTemplateOnChain.tier).to.equal(1);
       expect(swordTemplateOnChain.xp).to.equal(0);
       expect(swordTemplateOnChain.weaponType).to.equal(WeaponType.SWORD);
       expect(swordTemplateOnChain.weaponStats).to.deep.equal(
@@ -114,7 +114,7 @@ describe("Weapon Factory", function () {
       expect(weapon.description).to.equal(swordTemplateOffChain.description);
       expect(weapon.image).to.equal(swordTemplateOffChain.image);
       expect(weapon.level).to.equal(1);
-      expect(weapon.stage).to.equal(1);
+      expect(weapon.tier).to.equal(1);
       expect(weapon.xp).to.equal(0);
       expect(weapon.weaponType).to.equal(WeaponType.SWORD);
       expect(weapon.weaponStats).to.deep.equal(

@@ -36,7 +36,7 @@ library WeaponTypes {
         string description;
         string image;
         uint16 level;
-        uint16 stage;
+        uint16 tier;
         WeaponType weaponType;
         WeaponStats weaponStats;
         uint16 xp;

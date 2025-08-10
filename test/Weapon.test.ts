@@ -114,7 +114,7 @@ describe("Weapon", function () {
       expect(weaponData.description).to.equal(expectedTemplate.description);
       expect(weaponData.image).to.equal(expectedTemplate.image);
       expect(weaponData.level).to.equal(1);
-      expect(weaponData.stage).to.equal(1);
+      expect(weaponData.tier).to.equal(1);
       expect(weaponData.xp).to.equal(0);
       expect(weaponData.weaponType).to.equal(WeaponType.SWORD);
       expect(weaponData.weaponStats).to.deep.equal(expectedTemplate.weaponStats);
@@ -147,7 +147,7 @@ describe("Weapon", function () {
       expect(metadata.attributes).to.be.an("array");
       expect(metadata.attributes.length).to.be.greaterThan(0);
       expect(attributes["Level"]).to.equal(1);
-      expect(attributes["Stage"]).to.equal(1);
+      expect(attributes["Tier"]).to.equal(1);
       expect(attributes["XP"]).to.equal(0);
       expect(attributes["Weapon Type"]).to.equal("Sword");
       expect(attributes["Health"]).to.equal(expectedData.weaponStats.health);
@@ -184,7 +184,7 @@ describe("Weapon", function () {
         description: "This sword will hack the game",
         image: "https://example.com/hack.png",
         level: 100,
-        stage: 10,
+        tier: 10,
         weaponStats: {
           health: 9999,
           speed: 9999,
@@ -216,7 +216,7 @@ describe("Weapon", function () {
       expect(weaponData.description).to.equal("This sword will hack the game");
       expect(weaponData.image).to.equal("https://example.com/hack.png");
       expect(weaponData.level).to.equal(100);
-      expect(weaponData.stage).to.equal(10);
+      expect(weaponData.tier).to.equal(10);
       expect(weaponData.xp).to.equal(9999);
       expect(weaponData.weaponType).to.equal(WeaponType.SWORD);
       expect(weaponData.weaponStats).to.deep.equal(customWeapon.weaponStats);
@@ -231,7 +231,7 @@ describe("Weapon", function () {
         description: "Should not work",
         image: "https://example.com/hack.png",
         level: 100,
-        stage: 10,
+        tier: 10,
         weaponStats: {
           health: 9999,
           speed: 9999,
