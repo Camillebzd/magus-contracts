@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import hre from "hardhat";
 import initialWeaponsData from "../metadata/InitialWeaponsData.json";
-import { Attribute, NFTMetadata, WeaponType } from "../types/WeaponTypes";
+import type { Attribute, NFTMetadata, WeaponType } from "../types/WeaponTypes";
 
 describe("Weapon", function () {
   async function deployWeaponSystemFixture() {
@@ -32,7 +32,7 @@ describe("Weapon", function () {
           initialTemplate.name,
           initialTemplate.description,
           initialTemplate.image,
-          initialTemplate.weaponStats,
+          initialTemplate.stats,
           initialTemplate.abilities,
         ],
         { account: account }
@@ -55,7 +55,7 @@ describe("Weapon", function () {
     };
 
     // Setup initial templates for sword
-    await setupInitialWeaponTemplates(WeaponType.SWORD);
+    await setupInitialWeaponTemplates("sword");
 
     return {
       weapon,
@@ -100,7 +100,7 @@ describe("Weapon", function () {
     it("Should mint weapon from factory by type", async function () {
       const { weapon, addr1 } = await loadFixture(deployWeaponSystemFixture);
 
-      await weapon.write.requestWeapon([WeaponType.SWORD], {
+      await weapon.write.requestWeapon(["sword"], {
         account: addr1.account,
       }); // SWORD
 
@@ -108,7 +108,7 @@ describe("Weapon", function () {
       expect((await weapon.read.ownerOf([0n])).toLowerCase()).to.equal(addr1.account.address);
 
       const weaponData = await weapon.read.getWeapon([0n]);
-      const expectedTemplate = initialWeaponsData[WeaponType.SWORD];
+      const expectedTemplate = initialWeaponsData["sword"];
 
       expect(weaponData.name).to.equal(expectedTemplate.name);
       expect(weaponData.description).to.equal(expectedTemplate.description);
@@ -116,15 +116,16 @@ describe("Weapon", function () {
       expect(weaponData.level).to.equal(1);
       expect(weaponData.tier).to.equal(1);
       expect(weaponData.xp).to.equal(0);
-      expect(weaponData.weaponType).to.equal(WeaponType.SWORD);
-      expect(weaponData.weaponStats).to.deep.equal(expectedTemplate.weaponStats);
+      expect(weaponData.weaponType).to.equal("sword");
+      expect(weaponData.element).to.equal("none");
+      expect(weaponData.stats).to.deep.equal(expectedTemplate.stats);
       expect(weaponData.abilities).to.deep.equal(expectedTemplate.abilities);
     });
 
     it("Should generate correct tokenURI with on-chain metadata", async function () {
       const { weapon, addr1, parseWeaponAttributes } = await loadFixture(deployWeaponSystemFixture);
 
-      await weapon.write.requestWeapon([WeaponType.SWORD], {
+      await weapon.write.requestWeapon(["sword"], {
         account: addr1.account,
       }); // SWORD
 
@@ -133,7 +134,7 @@ describe("Weapon", function () {
       // Check that it's a data URI
       expect(tokenURI).to.include("data:application/json;base64,");
 
-      const expectedData = initialWeaponsData[WeaponType.SWORD];
+      const expectedData = initialWeaponsData["sword"];
 
       // Decode and parse the JSON
       const base64Data = tokenURI.split(",")[1];
@@ -149,20 +150,21 @@ describe("Weapon", function () {
       expect(attributes["Level"]).to.equal(1);
       expect(attributes["Tier"]).to.equal(1);
       expect(attributes["XP"]).to.equal(0);
-      expect(attributes["Weapon Type"]).to.equal("Sword");
-      expect(attributes["Health"]).to.equal(expectedData.weaponStats.health);
-      expect(attributes["Speed"]).to.equal(expectedData.weaponStats.speed);
-      expect(attributes["Mind"]).to.equal(expectedData.weaponStats.mind);
-      expect(attributes["Sharp Damage"]).to.equal(expectedData.weaponStats.offensiveStats.sharpDamage);
-      expect(attributes["Blunt Damage"]).to.equal(expectedData.weaponStats.offensiveStats.bluntDamage);
-      expect(attributes["Burn Damage"]).to.equal(expectedData.weaponStats.offensiveStats.burnDamage);
-      expect(attributes["Pierce"]).to.equal(expectedData.weaponStats.offensiveStats.pierce);
-      expect(attributes["Lethality"]).to.equal(expectedData.weaponStats.offensiveStats.lethality);
-      expect(attributes["Sharp Resistance"]).to.equal(expectedData.weaponStats.defensiveStats.sharpResistance);
-      expect(attributes["Blunt Resistance"]).to.equal(expectedData.weaponStats.defensiveStats.bluntResistance);
-      expect(attributes["Burn Resistance"]).to.equal(expectedData.weaponStats.defensiveStats.burnResistance);
-      expect(attributes["Guard"]).to.equal(expectedData.weaponStats.defensiveStats.guard);
-      expect(attributes["Handling"]).to.equal(expectedData.weaponStats.handling);
+      expect(attributes["Type"]).to.equal("sword");
+      expect(attributes["Health"]).to.equal(expectedData.stats.health);
+      expect(attributes["Speed"]).to.equal(expectedData.stats.speed);
+      expect(attributes["Mind"]).to.equal(expectedData.stats.mind);
+      expect(attributes["Sharp Damage"]).to.equal(expectedData.stats.offensiveStats.sharpDamage);
+      expect(attributes["Blunt Damage"]).to.equal(expectedData.stats.offensiveStats.bluntDamage);
+      expect(attributes["Burn Damage"]).to.equal(expectedData.stats.offensiveStats.burnDamage);
+      expect(attributes["Pierce"]).to.equal(expectedData.stats.offensiveStats.pierce);
+      expect(attributes["Lethality"]).to.equal(expectedData.stats.offensiveStats.lethality);
+      expect(attributes["Sharp Resistance"]).to.equal(expectedData.stats.defensiveStats.sharpResistance);
+      expect(attributes["Blunt Resistance"]).to.equal(expectedData.stats.defensiveStats.bluntResistance);
+      expect(attributes["Burn Resistance"]).to.equal(expectedData.stats.defensiveStats.burnResistance);
+      expect(attributes["Guard"]).to.equal(expectedData.stats.defensiveStats.guard);
+      expect(attributes["Handling"]).to.equal(expectedData.stats.handling);
+      expect(attributes["Element"]).to.deep.equal("none");
       expect(attributes["Abilities"]).to.deep.equal(expectedData.abilities);
     });
 
@@ -170,7 +172,7 @@ describe("Weapon", function () {
       const { weapon, addr1 } = await loadFixture(deployWeaponSystemFixture);
 
       await expect(
-        weapon.write.requestWeapon([99], { account: addr1.account }) // Invalid type
+        weapon.write.requestWeapon(["gm"], { account: addr1.account }) // Invalid type
       ).to.be.rejected;
     });
   });
@@ -181,11 +183,11 @@ describe("Weapon", function () {
 
       const customWeapon = {
         name: "Hacker Sword",
-        description: "This sword will hack the game",
+        description: "This sword will hack the game.",
         image: "https://example.com/hack.png",
         level: 100,
         tier: 10,
-        weaponStats: {
+        stats: {
           health: 9999,
           speed: 9999,
           mind: 9999,
@@ -204,7 +206,8 @@ describe("Weapon", function () {
           },
           handling: 9999,
         },
-        weaponType: WeaponType.SWORD,
+        weaponType: "sword",
+        element: "godly",
         xp: 9999,
         abilities: ["Hack"],
       };
@@ -213,13 +216,14 @@ describe("Weapon", function () {
 
       const weaponData = await weapon.read.getWeapon([0n]);
       expect(weaponData.name).to.equal("Hacker Sword");
-      expect(weaponData.description).to.equal("This sword will hack the game");
+      expect(weaponData.description).to.equal("This sword will hack the game.");
       expect(weaponData.image).to.equal("https://example.com/hack.png");
       expect(weaponData.level).to.equal(100);
       expect(weaponData.tier).to.equal(10);
       expect(weaponData.xp).to.equal(9999);
-      expect(weaponData.weaponType).to.equal(WeaponType.SWORD);
-      expect(weaponData.weaponStats).to.deep.equal(customWeapon.weaponStats);
+      expect(weaponData.weaponType).to.equal("sword");
+      expect(weaponData.element).to.equal("godly");
+      expect(weaponData.stats).to.deep.equal(customWeapon.stats);
       expect(weaponData.abilities).to.deep.equal(customWeapon.abilities);
     });
 
@@ -232,7 +236,7 @@ describe("Weapon", function () {
         image: "https://example.com/hack.png",
         level: 100,
         tier: 10,
-        weaponStats: {
+        stats: {
           health: 9999,
           speed: 9999,
           mind: 9999,
@@ -251,7 +255,8 @@ describe("Weapon", function () {
           },
           handling: 9999,
         },
-        weaponType: WeaponType.SWORD,
+        weaponType: "sword",
+        element: "godly",
         xp: 9999,
         identity: "Hacked",
         abilities: ["Hack"],
@@ -301,7 +306,7 @@ describe("Weapon", function () {
         deployWeaponSystemFixture
       );
 
-      await weapon.write.requestWeapon([WeaponType.SWORD], {
+      await weapon.write.requestWeapon(["sword"], {
         account: addr1.account,
       }); // SWORD
 

@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import hre from "hardhat";
 import initialWeaponsData from "../metadata/InitialWeaponsData.json";
-import { WeaponType } from "../types/WeaponTypes";
+import type { WeaponType } from "../types/WeaponTypes";
 
 describe("Weapon Factory", function () {
   async function deployWeaponSystemFixture() {
@@ -26,7 +26,7 @@ describe("Weapon Factory", function () {
           initialTemplate.name,
           initialTemplate.description,
           initialTemplate.image,
-          initialTemplate.weaponStats,
+          initialTemplate.stats,
           initialTemplate.abilities,
         ],
         { account: account }
@@ -67,13 +67,13 @@ describe("Weapon Factory", function () {
         deployWeaponSystemFixture
       );
 
-      await setupInitialWeaponTemplates(WeaponType.SWORD);
+      await setupInitialWeaponTemplates("sword");
 
       // Check that the sword template is set up correctly
       const swordTemplateOnChain = await weaponFactory.read.getWeaponTemplate([
-        WeaponType.SWORD,
+        "sword",
       ]);
-      const swordTemplateOffChain = initialWeaponsData[WeaponType.SWORD];
+      const swordTemplateOffChain = initialWeaponsData["sword"];
 
       expect(swordTemplateOnChain.name).to.equal(swordTemplateOffChain.name);
       expect(swordTemplateOnChain.description).to.equal(
@@ -83,9 +83,9 @@ describe("Weapon Factory", function () {
       expect(swordTemplateOnChain.level).to.equal(1);
       expect(swordTemplateOnChain.tier).to.equal(1);
       expect(swordTemplateOnChain.xp).to.equal(0);
-      expect(swordTemplateOnChain.weaponType).to.equal(WeaponType.SWORD);
-      expect(swordTemplateOnChain.weaponStats).to.deep.equal(
-        swordTemplateOffChain.weaponStats
+      expect(swordTemplateOnChain.weaponType).to.equal("sword");
+      expect(swordTemplateOnChain.stats).to.deep.equal(
+        swordTemplateOffChain.stats
       );
       expect(swordTemplateOnChain.abilities).to.deep.equal(
         swordTemplateOffChain.abilities
@@ -97,7 +97,7 @@ describe("Weapon Factory", function () {
 
       expect(weaponTypeCount).to.equal(1n);
       expect(configuredTypes.length).to.equal(1);
-      expect(configuredTypes[0]).to.equal(WeaponType.SWORD);
+      expect(configuredTypes[0]).to.equal("sword");
     });
 
     it("Should create (return) weapons", async function () {
@@ -105,10 +105,10 @@ describe("Weapon Factory", function () {
         deployWeaponSystemFixture
       );
 
-      await setupInitialWeaponTemplates(WeaponType.SWORD);
+      await setupInitialWeaponTemplates("sword");
 
-      const weapon = await weaponFactory.read.createWeapon([WeaponType.SWORD]);
-      const swordTemplateOffChain = initialWeaponsData[WeaponType.SWORD];
+      const weapon = await weaponFactory.read.createWeapon(["sword"]);
+      const swordTemplateOffChain = initialWeaponsData["sword"];
 
       expect(weapon.name).to.equal(swordTemplateOffChain.name);
       expect(weapon.description).to.equal(swordTemplateOffChain.description);
@@ -116,9 +116,9 @@ describe("Weapon Factory", function () {
       expect(weapon.level).to.equal(1);
       expect(weapon.tier).to.equal(1);
       expect(weapon.xp).to.equal(0);
-      expect(weapon.weaponType).to.equal(WeaponType.SWORD);
-      expect(weapon.weaponStats).to.deep.equal(
-        swordTemplateOffChain.weaponStats
+      expect(weapon.weaponType).to.equal("sword");
+      expect(weapon.stats).to.deep.equal(
+        swordTemplateOffChain.stats
       );
       expect(weapon.abilities).to.deep.equal(swordTemplateOffChain.abilities);
     });
@@ -127,7 +127,7 @@ describe("Weapon Factory", function () {
       const { weaponFactory } = await loadFixture(deployWeaponSystemFixture);
 
       await expect(
-        weaponFactory.read.createWeapon([99]) // Invalid weapon type
+        weaponFactory.read.createWeapon(["gm"]) // Invalid weapon type
       ).to.be.rejected;
     });
 
@@ -136,7 +136,7 @@ describe("Weapon Factory", function () {
       const [_, nonOwner] = await hre.viem.getWalletClients();
 
       await expect(
-        setupInitialWeaponTemplates(WeaponType.SWORD, nonOwner.account)
+        setupInitialWeaponTemplates("sword", nonOwner.account)
       ).to.be.rejected;
     });
   });

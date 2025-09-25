@@ -6,7 +6,7 @@ pragma solidity ^0.8.25;
  * @dev Library containing all weapon-related data structures
  */
 library WeaponTypes {
-    
+
     struct OffensiveStats {
         uint16 sharpDamage;
         uint16 bluntDamage;
@@ -37,21 +37,10 @@ library WeaponTypes {
         string image;
         uint16 level;
         uint16 tier;
-        WeaponType weaponType;
-        WeaponStats weaponStats;
+        string weaponType;
+        string element;
+        WeaponStats stats;
         uint16 xp;
         string[] abilities;
-    }
-
-    // Weapon type enum for different weapon categories
-    enum WeaponType {
-        SWORD,
-        AXE,
-        BOW,
-        STAFF,
-        DAGGER,
-        HAMMER,
-        SPEAR,
-        WAND
     }
 }

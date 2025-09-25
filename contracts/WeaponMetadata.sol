@@ -42,12 +42,12 @@ library WeaponMetadata {
     /**
      * @dev Generates the attributes array for the JSON metadata
      */
-    function _generateAttributes(WeaponTypes.WeaponData memory weapon) private pure returns (string memory) {
+    function _generateAttributes(WeaponTypes.WeaponData memory weapon) internal pure returns (string memory) {
         return string(
             abi.encodePacked(
                 _generateBasicAttributes(weapon),
                 ",",
-                _generateStatsAttributes(weapon.weaponStats),
+                _generateStatsAttributes(weapon.stats),
                 ",",
                 _generateAbilitiesAttribute(weapon.abilities)
             )
@@ -57,13 +57,14 @@ library WeaponMetadata {
     /**
      * @dev Generates basic weapon attributes (level, tier, xp)
      */
-    function _generateBasicAttributes(WeaponTypes.WeaponData memory weapon) private pure returns (string memory) {
+    function _generateBasicAttributes(WeaponTypes.WeaponData memory weapon) internal pure returns (string memory) {
         return string(
             abi.encodePacked(
                 '{"trait_type":"Level","value":', weapon.level.toString(), '},',
                 '{"trait_type":"Tier","value":', weapon.tier.toString(), '},',
                 '{"trait_type":"XP","value":', weapon.xp.toString(), '},',
-                '{"trait_type":"Weapon Type","value":"', _weaponTypeToString(weapon.weaponType), '"}'
+                '{"trait_type":"Type","value":"', weapon.weaponType, '"},',
+                '{"trait_type":"Element","value":"', weapon.element, '"}'
             )
         );
     }
@@ -71,7 +72,7 @@ library WeaponMetadata {
     /**
      * @dev Generates weapon stats attributes
      */
-    function _generateStatsAttributes(WeaponTypes.WeaponStats memory stats) private pure returns (string memory) {
+    function _generateStatsAttributes(WeaponTypes.WeaponStats memory stats) internal pure returns (string memory) {
         return string(
             abi.encodePacked(
                 '{"trait_type":"Health","value":', stats.health.toString(), '},',
@@ -88,7 +89,7 @@ library WeaponMetadata {
     /**
      * @dev Generates offensive stats attributes
      */
-    function _generateOffensiveStatsAttributes(WeaponTypes.OffensiveStats memory offensive) private pure returns (string memory) {
+    function _generateOffensiveStatsAttributes(WeaponTypes.OffensiveStats memory offensive) internal pure returns (string memory) {
         return string(
             abi.encodePacked(
                 '{"trait_type":"Sharp Damage","value":', offensive.sharpDamage.toString(), '},',
@@ -103,7 +104,7 @@ library WeaponMetadata {
     /**
      * @dev Generates defensive stats attributes
      */
-    function _generateDefensiveStatsAttributes(WeaponTypes.DefensiveStats memory defensive) private pure returns (string memory) {
+    function _generateDefensiveStatsAttributes(WeaponTypes.DefensiveStats memory defensive) internal pure returns (string memory) {
         return string(
             abi.encodePacked(
                 '{"trait_type":"Sharp Resistance","value":', defensive.sharpResistance.toString(), '},',
@@ -117,7 +118,7 @@ library WeaponMetadata {
     /**
      * @dev Generates abilities attribute as a comma-separated string
      */
-    function _generateAbilitiesAttribute(string[] memory abilities) private pure returns (string memory) {
+    function _generateAbilitiesAttribute(string[] memory abilities) internal pure returns (string memory) {
         if (abilities.length == 0) {
             return '{"trait_type":"Abilities","value":"None"}';
         }
@@ -132,16 +133,5 @@ library WeaponMetadata {
                 '{"trait_type":"Abilities","value":"', abilitiesString, '"}'
             )
         );
-    }
-
-    /**
-     * @dev Converts WeaponType enum to string
-     */
-    function _weaponTypeToString(WeaponTypes.WeaponType weaponType) private pure returns (string memory) {
-        if (weaponType == WeaponTypes.WeaponType(0)) return "Sword";
-        if (weaponType == WeaponTypes.WeaponType(1)) return "Axe";
-        if (weaponType == WeaponTypes.WeaponType(2)) return "Bow";
-        if (weaponType == WeaponTypes.WeaponType(3)) return "Staff";
-        return "Unknown";
     }
 }

@@ -1,9 +1,9 @@
 {
-  "0": {
+  "sword": {
     "name": "Basic sword",
     "description": "A basic sword for beginners.",
     "image": "ipfs://bafybeib7veanakc5xblwrgd5lopzhpo2c4kvsbmh76imgn2ni4ulm3zmwy",
-    "weaponStats": {
+    "stats": {
       "health": 120,
       "speed": 17,
       "mind": 10,

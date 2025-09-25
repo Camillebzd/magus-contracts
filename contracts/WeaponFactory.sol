@@ -8,21 +8,21 @@ contract WeaponFactory is Ownable {
     using WeaponTypes for WeaponTypes.WeaponData;
 
     // Mapping from weapon type to base weapon template
-    mapping(WeaponTypes.WeaponType => WeaponTypes.WeaponData)
+    mapping(string => WeaponTypes.WeaponData)
         private _weaponTemplates;
 
     // Array to track which weapon types have been configured
-    WeaponTypes.WeaponType[] private _configuredWeaponTypes;
+    string[] private _configuredWeaponTypes;
 
     // Mapping to check if a weapon type is configured
-    mapping(WeaponTypes.WeaponType => bool) private _isWeaponTypeConfigured;
+    mapping(string => bool) private _isWeaponTypeConfigured;
 
     event WeaponTemplateAdded(
-        WeaponTypes.WeaponType indexed weaponType,
+        string indexed weaponType,
         string name
     );
     event WeaponTemplateUpdated(
-        WeaponTypes.WeaponType indexed weaponType,
+        string indexed weaponType,
         string name
     );
 
@@ -32,7 +32,7 @@ contract WeaponFactory is Ownable {
      * @dev Add or update a weapon template (only owner)
      */
     function setWeaponTemplate(
-        WeaponTypes.WeaponType weaponType,
+        string memory weaponType,
         string memory name,
         string memory description,
         string memory image,
@@ -61,7 +61,7 @@ contract WeaponFactory is Ownable {
      * @dev Internal function to set weapon template
      */
     function _setWeaponTemplate(
-        WeaponTypes.WeaponType weaponType,
+        string memory weaponType,
         string memory name,
         string memory description,
         string memory image,
@@ -75,7 +75,8 @@ contract WeaponFactory is Ownable {
             level: 1,
             tier: 1,
             weaponType: weaponType,
-            weaponStats: stats,
+            element: "none", // No element by default
+            stats: stats,
             xp: 0,
             abilities: abilities
         });
@@ -90,7 +91,7 @@ contract WeaponFactory is Ownable {
      * @dev Get base weapon data for a specific weapon type
      */
     function getWeaponTemplate(
-        WeaponTypes.WeaponType weaponType
+        string memory weaponType
     ) external view returns (WeaponTypes.WeaponData memory) {
         require(
             _isWeaponTypeConfigured[weaponType],
@@ -103,7 +104,7 @@ contract WeaponFactory is Ownable {
      * @dev Create a new weapon instance from template
      */
     function createWeapon(
-        WeaponTypes.WeaponType weaponType
+        string memory weaponType
     ) external view returns (WeaponTypes.WeaponData memory) {
         require(
             _isWeaponTypeConfigured[weaponType],
@@ -118,7 +119,7 @@ contract WeaponFactory is Ownable {
     function getConfiguredWeaponTypes()
         external
         view
-        returns (WeaponTypes.WeaponType[] memory)
+        returns (string[] memory)
     {
         return _configuredWeaponTypes;
     }
@@ -127,7 +128,7 @@ contract WeaponFactory is Ownable {
      * @dev Check if a weapon type is configured
      */
     function isWeaponTypeConfigured(
-        WeaponTypes.WeaponType weaponType
+        string memory weaponType
     ) external view returns (bool) {
         return _isWeaponTypeConfigured[weaponType];
     }

@@ -9,15 +9,13 @@ import {WeaponMetadata} from "./WeaponMetadata.sol";
 import {WeaponFactory} from "./WeaponFactory.sol";
 
 contract Weapon is ERC721, ERC721Enumerable, Ownable {
-    using WeaponTypes for WeaponTypes.WeaponData;
-
     uint256 private _nextTokenId;
     WeaponFactory private _weaponFactory;
 
     // Mapping from token ID to weapon data
     mapping(uint256 => WeaponTypes.WeaponData) private _weapons;
 
-    event WeaponRequested(address indexed requester, uint256 indexed tokenId, WeaponTypes.WeaponType weaponType);
+    event WeaponRequested(address indexed requester, uint256 indexed tokenId, string weaponType);
     event WeaponFactoryUpdated(address indexed oldFactory, address indexed newFactory);
 
     constructor(address initialOwner, address weaponFactoryAddress)
@@ -30,7 +28,7 @@ contract Weapon is ERC721, ERC721Enumerable, Ownable {
     /**
      * @dev Mints a new weapon NFT based on weapon type from factory
      */
-    function requestWeapon(WeaponTypes.WeaponType weaponType) external returns (uint256) {
+    function requestWeapon(string memory weaponType) external returns (uint256) {
         require(_weaponFactory.isWeaponTypeConfigured(weaponType), "Weapon: Invalid weapon type");
 
         uint256 tokenId = _nextTokenId++;
