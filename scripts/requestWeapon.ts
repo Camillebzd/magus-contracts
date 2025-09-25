@@ -8,7 +8,7 @@ async function main() {
 
   const weaponAddress = "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512"; // Replace with actual weapon contract address
   const weapon = await hre.viem.getContractAt("Weapon", weaponAddress);
-  const weaponType: number = WeaponType.SWORD; // Sword type as per the WeaponType enum
+  const weaponType: WeaponType = "sword";
 
   const txHash = await weapon.write.requestWeapon([weaponType]);
   console.log("Transaction hash for requesting weapon:", txHash);

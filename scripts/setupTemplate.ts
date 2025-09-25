@@ -1,5 +1,5 @@
 import hre from "hardhat";
-import { WeaponType } from "../types/WeaponTypes";
+import type { WeaponType } from "../types/WeaponTypes";
 import initialWeaponsData from "../metadata/InitialWeaponsData.json";
 
 async function main() {
@@ -10,14 +10,14 @@ async function main() {
     deployer.account.address
   );
 
-  const weaponFactoryAddress = "0xc63b2e0922432ce5ebe5046089bc672d34bdfa57"; // Replace with actual weapon contract address
+  const weaponFactoryAddress = "0x5fbdb2315678afecb367f032d93f642f64180aa3"; // Replace with actual weapon contract address
   const weaponFactory = await hre.viem.getContractAt(
     "WeaponFactory",
     weaponFactoryAddress
   );
-  const weaponType = WeaponType.SWORD; // Sword type as per the WeaponType enum
+  const weaponType: WeaponType = "sword";
 
-  const initialTemplate = initialWeaponsData[WeaponType.SWORD];
+  const initialTemplate = initialWeaponsData[weaponType];
 
   // Create the weapon template in the factory
   await weaponFactory.write.setWeaponTemplate(
@@ -26,7 +26,7 @@ async function main() {
       initialTemplate.name,
       initialTemplate.description,
       initialTemplate.image,
-      initialTemplate.weaponStats,
+      initialTemplate.stats,
       initialTemplate.abilities,
     ],
   );
