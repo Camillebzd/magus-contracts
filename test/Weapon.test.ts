@@ -1,12 +1,52 @@
 import { expect } from "chai";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import hre from "hardhat";
+import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
+import { type Address, type WalletClient, type PublicClient } from "viem";
 import initialWeaponsData from "../metadata/InitialWeaponsData.json";
 import type { Attribute, NFTMetadata, WeaponType } from "../types/WeaponTypes";
 
+// Helper function to sign XP messages for weapons
+async function signWeaponXP(
+  server: WalletClient,
+  weapon: any, // Weapon contract instance
+  publicClient: PublicClient,
+  tokenId: bigint,
+  amount: bigint
+) {
+  // EIP-712 typed data structure
+  const domain = {
+    name: "XP",
+    version: "1.0",
+    chainId: await publicClient.getChainId(),
+    verifyingContract: weapon.address,
+  };
+  const types = {
+    addXP: [
+      { name: "tokenId", type: "uint256" },
+      { name: "amount", type: "uint256" },
+      { name: "nonce", type: "uint256" },
+    ],
+  };
+  const nonce = await weapon.read.nonces([tokenId]);
+  const message = {
+    tokenId,
+    amount,
+    nonce,
+  };
+
+  return await server.signTypedData({
+    account: server.account!,
+    domain,
+    types,
+    primaryType: "addXP",
+    message,
+  });
+}
+
 describe("Weapon", function () {
   async function deployWeaponSystemFixture() {
-    const [owner, addr1, addr2] = await hre.viem.getWalletClients();
+    const [owner, addr1, addr2, server] = await hre.viem.getWalletClients();
     const publicClient = await hre.viem.getPublicClient();
 
     // Deploy WeaponFactory first
@@ -18,6 +58,7 @@ describe("Weapon", function () {
     const weapon = await hre.viem.deployContract("Weapon", [
       owner.account.address,
       weaponFactory.address,
+      server.account.address, // Use dedicated server account for XP signing
     ]);
 
     // Helper function to setup the initial templates in the factory
@@ -63,6 +104,7 @@ describe("Weapon", function () {
       owner,
       addr1,
       addr2,
+      server,
       publicClient,
       setupInitialWeaponTemplates,
       parseWeaponAttributes,
@@ -323,6 +365,133 @@ describe("Weapon", function () {
       const weaponData = await weapon.read.getWeapon([0n]);
       expect(weaponData.name).to.equal("Updated Sword");
       expect(weaponData.level).to.equal(5);
+    });
+  });
+
+  describe("XP System", function () {
+    it("Should mint a weapon and add XP to it", async function () {
+      const { weapon, server, addr1, publicClient } = await loadFixture(deployWeaponSystemFixture);
+
+      // Player requests a weapon
+      await weapon.write.requestWeapon(["sword"], {
+        account: addr1.account,
+      });
+
+      const tokenId = 0n;
+
+      // Get initial weapon data
+      const initialWeapon = await weapon.read.getWeapon([tokenId]);
+      expect(initialWeapon.xp).to.equal(0);
+
+      // Server adds XP to the weapon
+      const xpAmount = 150n;
+      const signature = await signWeaponXP(
+        server,
+        weapon,
+        publicClient,
+        tokenId,
+        xpAmount
+      );
+
+      // Add XP to the weapon
+      await weapon.write.addXP([tokenId, xpAmount, 0n, signature]);
+
+      // Get updated weapon data - XP should be stored in WeaponData
+      const updatedWeapon = await weapon.read.getWeapon([tokenId]);
+      expect(updatedWeapon.xp).to.equal(Number(xpAmount));
+    });
+
+    it("Should handle multiple XP additions", async function () {
+      const { weapon, server, addr1, publicClient } = await loadFixture(deployWeaponSystemFixture);
+
+      // Player requests a weapon
+      await weapon.write.requestWeapon(["sword"], {
+        account: addr1.account,
+      });
+
+      const tokenId = 0n;
+
+      // First XP addition
+      const xpAmount1 = 100n;
+      let signature = await signWeaponXP(
+        server,
+        weapon,
+        publicClient,
+        tokenId,
+        xpAmount1
+      );
+
+      await weapon.write.addXP([tokenId, xpAmount1, 0n, signature]);
+
+      // Second XP addition
+      const xpAmount2 = 75n;
+      signature = await signWeaponXP(
+        server,
+        weapon,
+        publicClient,
+        tokenId,
+        xpAmount2
+      );
+
+      await weapon.write.addXP([tokenId, xpAmount2, 1n, signature]);
+
+      // Verify total XP in WeaponData
+      const totalXP = xpAmount1 + xpAmount2;
+      const weaponData = await weapon.read.getWeapon([tokenId]);
+      expect(weaponData.xp).to.equal(Number(totalXP));
+    });
+
+    it("Should prevent XP addition with invalid signature", async function () {
+      const { weapon, server, addr1, publicClient } = await loadFixture(deployWeaponSystemFixture);
+
+      // Player requests a weapon
+      await weapon.write.requestWeapon(["sword"], {
+        account: addr1.account,
+      });
+
+      const tokenId = 0n;
+
+      // Create invalid signer
+      const invalidPrivateKey = generatePrivateKey();
+      const invalidSigner = privateKeyToAccount(invalidPrivateKey);
+
+      const xpAmount = 100n;
+      const signature = await signWeaponXP(
+        { ...server, account: invalidSigner },
+        weapon,
+        publicClient,
+        tokenId,
+        xpAmount
+      );
+
+      // Attempt to add XP with invalid signature should fail
+      await expect(
+        weapon.write.addXP([tokenId, xpAmount, 0n, signature])
+      ).to.be.rejected;
+
+      // Verify no XP was added to WeaponData
+      const weaponData = await weapon.read.getWeapon([tokenId]);
+      expect(weaponData.xp).to.equal(0);
+    });
+
+    it("Should prevent XP addition to non-existent weapon", async function () {
+      const { weapon, server, publicClient } = await loadFixture(deployWeaponSystemFixture);
+
+      const nonExistentTokenId = 999n;
+      const xpAmount = 100n;
+
+      const signature = await signWeaponXP(
+        server,
+        weapon,
+        publicClient,
+        nonExistentTokenId,
+        xpAmount
+      );
+
+      // Attempt to add XP to non-existent weapon should fail
+      await expect(
+        weapon.write.addXP([nonExistentTokenId, xpAmount, 0n, signature])
+      ).to.be.rejected;
     });
   });
 });

@@ -4,25 +4,38 @@ pragma solidity ^0.8.25;
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {ERC721Enumerable} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {WeaponTypes} from "./WeaponTypes.sol";
 import {WeaponMetadata} from "./WeaponMetadata.sol";
 import {WeaponFactory} from "./WeaponFactory.sol";
 
-contract Weapon is ERC721, ERC721Enumerable, Ownable {
+contract Weapon is ERC721, ERC721Enumerable, Ownable, EIP712 {
     uint256 private _nextTokenId;
     WeaponFactory private _weaponFactory;
 
     // Mapping from token ID to weapon data
     mapping(uint256 => WeaponTypes.WeaponData) private _weapons;
 
+    // XP system variables
+    address public server;
+    mapping(uint256 => uint256) public nonces;
+    bytes32 public constant ADD_XP_TYPEHASH = keccak256("addXP(uint256 tokenId,uint256 amount,uint256 nonce)");
+    
     event WeaponRequested(address indexed requester, uint256 indexed tokenId, string weaponType);
     event WeaponFactoryUpdated(address indexed oldFactory, address indexed newFactory);
 
-    constructor(address initialOwner, address weaponFactoryAddress)
+    error InvalidNonce();
+    error InvalidSignature();
+    error InvalidServerAddress();
+
+    constructor(address initialOwner, address weaponFactoryAddress, address serverAddress)
         ERC721("Weapon", "WPN")
         Ownable(initialOwner)
+        EIP712("XP", "1.0")
     {
         _weaponFactory = WeaponFactory(weaponFactoryAddress);
+        server = serverAddress;
     }
 
     /**
@@ -82,6 +95,52 @@ contract Weapon is ERC721, ERC721Enumerable, Ownable {
     }
 
     /**
+     * @dev Add XP to a weapon with server signature validation
+     */
+    function addXP(
+        uint256 tokenId,
+        uint256 amount,
+        uint256 nonce,
+        bytes calldata signature
+    ) external {
+        _requireOwned(tokenId);
+        
+        // Validate signature using XP contract logic (but don't store in balances)
+        if (nonce != nonces[tokenId]) {
+            revert InvalidNonce();
+        }
+
+        bytes32 structHash = keccak256(abi.encode(ADD_XP_TYPEHASH, tokenId, amount, nonce));
+        bytes32 hash = _hashTypedDataV4(structHash);
+        address signer = ECDSA.recover(hash, signature);
+
+        if (signer != server) {
+            revert InvalidSignature();
+        }
+
+        // Update nonce to prevent replay
+        nonces[tokenId]++;
+
+        // Add XP directly to weapon data (single source of truth)
+        _weapons[tokenId].xp += uint16(amount);
+    }
+
+    /**
+     * @dev Get current nonce for a weapon token
+     */
+    function getNonce(uint256 tokenId) external view returns (uint256) {
+        return nonces[tokenId];
+    }
+
+    /**
+     * @dev Set new server address (owner only)
+     */
+    function setServer(address _newServer) external onlyOwner {
+        require(_newServer != address(0), "Invalid server address");
+        server = _newServer;
+    }
+
+    /**
      * @notice This is only for testing purposes, it should not be used in production
      * @dev Updates weapon data (only owner can update)
      * @param tokenId The ID of the weapon to update
@@ -91,21 +150,6 @@ contract Weapon is ERC721, ERC721Enumerable, Ownable {
         _requireOwned(tokenId);
         _weapons[tokenId] = weaponData;
     }
-
-    /**
-     * @dev WIP
-     */
-    // function levelUp(uint256 tokenId, uint16 xpGained) public onlyOwner {
-    //     _requireOwned(tokenId);
-    //     WeaponTypes.WeaponData storage weapon = _weapons[tokenId];
-    //     weapon.xp += xpGained;
-        
-    //     // Simple level up logic - every 100 XP increases level
-    //     uint16 newLevel = weapon.level + (weapon.xp / 100);
-    //     if (newLevel > weapon.level) {
-    //         weapon.level = newLevel;
-    //     }
-    // }
 
     /**
      * @dev Overrides tokenURI to generate on-chain metadata
