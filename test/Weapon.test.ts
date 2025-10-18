@@ -61,12 +61,12 @@ describe("Weapon", function () {
       server.account.address, // Use dedicated server account for XP signing
     ]);
 
-    // Helper function to setup the initial templates in the factory
+    // Helper function to setup the initial templates in the mold
     const setupInitialWeaponTemplates = async (weaponType: WeaponType, account: any = owner.account) => {
       // Get the initial template data for the specified weapon type
       const initialTemplate = initialWeaponsData[weaponType];
 
-      // Create the weapon template in the factory
+      // Create the weapon template in the mold
       await weaponMold.write.setWeaponTemplate(
         [
           weaponType,
@@ -127,19 +127,19 @@ describe("Weapon", function () {
       expect(await weapon.read.symbol()).to.equal("WPN");
     });
 
-    it("Should link weapon contract to factory", async function () {
+    it("Should link weapon contract to mold", async function () {
       const { weapon, weaponMold } = await loadFixture(
         deployWeaponSystemFixture
       );
 
-      expect((await weapon.read.getWeaponFactory()).toLowerCase()).to.equal(
+      expect((await weapon.read.getWeaponMold()).toLowerCase()).to.equal(
         weaponMold.address
       );
     });
   });
 
   describe("Weapon Minting", function () {
-    it("Should mint weapon from factory by type", async function () {
+    it("Should mint weapon from mold by type", async function () {
       const { weapon, addr1 } = await loadFixture(deployWeaponSystemFixture);
 
       await weapon.write.requestWeapon(["sword"], {
@@ -312,25 +312,25 @@ describe("Weapon", function () {
     });
   });
 
-  describe("Factory Management", function () {
-    it("Should allow owner to update weapon factory", async function () {
+  describe("Mold Management", function () {
+    it("Should allow owner to update weapon mold", async function () {
       const { weapon, owner } = await loadFixture(deployWeaponSystemFixture);
 
-      // Deploy new factory
-      const newFactory = await hre.viem.deployContract("WeaponMold", [
+      // Deploy new mold
+      const newMold = await hre.viem.deployContract("WeaponMold", [
         owner.account.address,
       ]);
 
-      await weapon.write.setWeaponFactory([newFactory.address]);
+      await weapon.write.setWeaponMold([newMold.address]);
 
-      expect((await weapon.read.getWeaponFactory()).toLowerCase()).to.equal(newFactory.address);
+      expect((await weapon.read.getWeaponMold()).toLowerCase()).to.equal(newMold.address);
     });
 
-    it("Should not allow non-owner to update weapon factory", async function () {
+    it("Should not allow non-owner to update weapon mold", async function () {
       const { weapon, addr1 } = await loadFixture(deployWeaponSystemFixture);
 
       await expect(
-        weapon.write.setWeaponFactory([addr1.account.address], {
+        weapon.write.setWeaponMold([addr1.account.address], {
           account: addr1.account,
         })
       ).to.be.rejected;

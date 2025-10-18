@@ -14,7 +14,7 @@ async function main() {
   console.log("\nDeploying Weapon contract...");
   const weapon = await hre.viem.deployContract("Weapon", [
     deployer.account.address, // initialOwner
-    weaponMold.address,    // weaponFactoryAddress  
+    weaponMold.address,    // weaponMoldAddress
     deployer.account.address  // serverAddress (using deployer as server for now)
   ]);
   console.log("Weapon contract deployed to:", weapon.address);

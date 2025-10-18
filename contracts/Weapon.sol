@@ -12,7 +12,7 @@ import {WeaponMold} from "./WeaponMold.sol";
 
 contract Weapon is ERC721, ERC721Enumerable, Ownable, EIP712 {
     uint256 private _nextTokenId;
-    WeaponMold private _weaponFactory;
+    WeaponMold private _weaponMold;
 
     // Mapping from token ID to weapon data
     mapping(uint256 => WeaponTypes.WeaponData) private _weapons;
@@ -28,9 +28,9 @@ contract Weapon is ERC721, ERC721Enumerable, Ownable, EIP712 {
         uint256 indexed tokenId,
         string weaponType
     );
-    event WeaponFactoryUpdated(
-        address indexed oldFactory,
-        address indexed newFactory
+    event WeaponMoldUpdated(
+        address indexed oldMold,
+        address indexed newMold
     );
     event XPAdded(uint256 indexed tokenId, uint256 amount);
 
@@ -41,27 +41,27 @@ contract Weapon is ERC721, ERC721Enumerable, Ownable, EIP712 {
 
     constructor(
         address initialOwner,
-        address weaponFactoryAddress,
+        address weaponMoldAddress,
         address serverAddress
     ) ERC721("Weapon", "WPN") Ownable(initialOwner) EIP712("XP", "1.0") {
-        _weaponFactory = WeaponMold(weaponFactoryAddress);
+        _weaponMold = WeaponMold(weaponMoldAddress);
         server = serverAddress;
     }
 
     /**
-     * @dev Mints a new weapon NFT based on weapon type from factory
+     * @dev Mints a new weapon NFT based on weapon type from mold
      */
     function requestWeapon(
         string memory weaponType
     ) external returns (uint256) {
-        if (!_weaponFactory.isWeaponTypeConfigured(weaponType)) {
+        if (!_weaponMold.isWeaponTypeConfigured(weaponType)) {
             revert InvalidWeaponType();
         }
 
         uint256 tokenId = _nextTokenId++;
 
-        // Get weapon data from factory
-        WeaponTypes.WeaponData memory weaponData = _weaponFactory.createWeapon(
+        // Get weapon data from mold
+        WeaponTypes.WeaponData memory weaponData = _weaponMold.createWeapon(
             weaponType
         );
         _weapons[tokenId] = weaponData;
@@ -87,19 +87,19 @@ contract Weapon is ERC721, ERC721Enumerable, Ownable, EIP712 {
     }
 
     /**
-     * @dev Updates the weapon factory address (owner only)
+     * @dev Updates the weapon mold address (owner only)
      */
-    function setWeaponFactory(address newWeaponFactory) external onlyOwner {
-        address oldFactory = address(_weaponFactory);
-        _weaponFactory = WeaponMold(newWeaponFactory);
-        emit WeaponFactoryUpdated(oldFactory, newWeaponFactory);
+    function setWeaponMold(address newWeaponMold) external onlyOwner {
+        address oldMold = address(_weaponMold);
+        _weaponMold = WeaponMold(newWeaponMold);
+        emit WeaponMoldUpdated(oldMold, newWeaponMold);
     }
 
     /**
-     * @dev Returns the current weapon factory address
+     * @dev Returns the current weapon mold address
      */
-    function getWeaponFactory() external view returns (address) {
-        return address(_weaponFactory);
+    function getWeaponMold() external view returns (address) {
+        return address(_weaponMold);
     }
 
     /**

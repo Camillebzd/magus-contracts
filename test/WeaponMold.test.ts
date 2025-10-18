@@ -4,7 +4,7 @@ import hre from "hardhat";
 import initialWeaponsData from "../metadata/InitialWeaponsData.json";
 import type { WeaponType } from "../types/WeaponTypes";
 
-describe("Weapon Factory", function () {
+describe("Weapon Mold", function () {
   async function deployWeaponSystemFixture() {
     const [owner] = await hre.viem.getWalletClients();
     const publicClient = await hre.viem.getPublicClient();
@@ -14,12 +14,12 @@ describe("Weapon Factory", function () {
       owner.account.address,
     ]);
 
-    // Helper function to setup the initial templates in the factory
+    // Helper function to setup the initial templates in the mold
     const setupInitialWeaponTemplates = async (weaponType: WeaponType, account: any = owner.account) => {
       // Get the initial template data for the specified weapon type
       const initialTemplate = initialWeaponsData[weaponType];
 
-      // Create the weapon template in the factory
+      // Create the weapon template in the mold
       await weaponMold.write.setWeaponTemplate(
         [
           weaponType,
@@ -42,7 +42,7 @@ describe("Weapon Factory", function () {
   }
 
   describe("Deployment", function () {
-    it("Should set the right owner for the weapon factory", async function () {
+    it("Should set the right owner for the weapon mold", async function () {
       const { weaponMold, owner } = await loadFixture(
         deployWeaponSystemFixture
       );

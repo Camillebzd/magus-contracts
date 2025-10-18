@@ -19,7 +19,7 @@ async function main() {
 
   const initialTemplate = initialWeaponsData[weaponType];
 
-  // Create the weapon template in the factory
+  // Create the weapon template in the mold
   await weaponMold.write.setWeaponTemplate(
     [
       weaponType,
