@@ -9,8 +9,8 @@ describe("Weapon Factory", function () {
     const [owner] = await hre.viem.getWalletClients();
     const publicClient = await hre.viem.getPublicClient();
 
-    // Deploy WeaponFactory
-    const weaponFactory = await hre.viem.deployContract("WeaponFactory", [
+    // Deploy WeaponMold
+    const weaponMold = await hre.viem.deployContract("WeaponMold", [
       owner.account.address,
     ]);
 
@@ -20,7 +20,7 @@ describe("Weapon Factory", function () {
       const initialTemplate = initialWeaponsData[weaponType];
 
       // Create the weapon template in the factory
-      await weaponFactory.write.setWeaponTemplate(
+      await weaponMold.write.setWeaponTemplate(
         [
           weaponType,
           initialTemplate.name,
@@ -34,7 +34,7 @@ describe("Weapon Factory", function () {
     };
 
     return {
-      weaponFactory,
+      weaponMold,
       owner,
       publicClient,
       setupInitialWeaponTemplates,
@@ -43,18 +43,18 @@ describe("Weapon Factory", function () {
 
   describe("Deployment", function () {
     it("Should set the right owner for the weapon factory", async function () {
-      const { weaponFactory, owner } = await loadFixture(
+      const { weaponMold, owner } = await loadFixture(
         deployWeaponSystemFixture
       );
 
-      expect((await weaponFactory.read.owner()).toLowerCase()).to.equal(owner.account.address);
+      expect((await weaponMold.read.owner()).toLowerCase()).to.equal(owner.account.address);
     });
 
     it("Should have 0 weapon types configured at start", async function () {
-      const { weaponFactory } = await loadFixture(deployWeaponSystemFixture);
-      const weaponTypeCount = await weaponFactory.read.getWeaponTypeCount();
+      const { weaponMold } = await loadFixture(deployWeaponSystemFixture);
+      const weaponTypeCount = await weaponMold.read.getWeaponTypeCount();
       const configuredTypes =
-        await weaponFactory.read.getConfiguredWeaponTypes();
+        await weaponMold.read.getConfiguredWeaponTypes();
 
       expect(weaponTypeCount).to.equal(0n);
       expect(configuredTypes.length).to.equal(0);
@@ -63,14 +63,14 @@ describe("Weapon Factory", function () {
 
   describe("Setup & usage", function () {
     it("Should set up the sword default weapon template", async function () {
-      const { weaponFactory, setupInitialWeaponTemplates } = await loadFixture(
+      const { weaponMold, setupInitialWeaponTemplates } = await loadFixture(
         deployWeaponSystemFixture
       );
 
       await setupInitialWeaponTemplates("sword");
 
       // Check that the sword template is set up correctly
-      const swordTemplateOnChain = await weaponFactory.read.getWeaponTemplate([
+      const swordTemplateOnChain = await weaponMold.read.getWeaponTemplate([
         "sword",
       ]);
       const swordTemplateOffChain = initialWeaponsData["sword"];
@@ -91,9 +91,9 @@ describe("Weapon Factory", function () {
         swordTemplateOffChain.abilities
       );
 
-      const weaponTypeCount = await weaponFactory.read.getWeaponTypeCount();
+      const weaponTypeCount = await weaponMold.read.getWeaponTypeCount();
       const configuredTypes =
-        await weaponFactory.read.getConfiguredWeaponTypes();
+        await weaponMold.read.getConfiguredWeaponTypes();
 
       expect(weaponTypeCount).to.equal(1n);
       expect(configuredTypes.length).to.equal(1);
@@ -101,13 +101,13 @@ describe("Weapon Factory", function () {
     });
 
     it("Should create (return) weapons", async function () {
-      const { weaponFactory, setupInitialWeaponTemplates } = await loadFixture(
+      const { weaponMold, setupInitialWeaponTemplates } = await loadFixture(
         deployWeaponSystemFixture
       );
 
       await setupInitialWeaponTemplates("sword");
 
-      const weapon = await weaponFactory.read.createWeapon(["sword"]);
+      const weapon = await weaponMold.read.createWeapon(["sword"]);
       const swordTemplateOffChain = initialWeaponsData["sword"];
 
       expect(weapon.name).to.equal(swordTemplateOffChain.name);
@@ -124,10 +124,10 @@ describe("Weapon Factory", function () {
     });
 
     it("Should not allow creating a weapon with an unconfigured type", async function () {
-      const { weaponFactory } = await loadFixture(deployWeaponSystemFixture);
+      const { weaponMold } = await loadFixture(deployWeaponSystemFixture);
 
       await expect(
-        weaponFactory.read.createWeapon(["gm"]) // Invalid weapon type
+        weaponMold.read.createWeapon(["gm"]) // Invalid weapon type
       ).to.be.rejected;
     });
 

@@ -49,15 +49,15 @@ describe("Weapon", function () {
     const [owner, addr1, addr2, server] = await hre.viem.getWalletClients();
     const publicClient = await hre.viem.getPublicClient();
 
-    // Deploy WeaponFactory first
-    const weaponFactory = await hre.viem.deployContract("WeaponFactory", [
+    // Deploy WeaponMold first
+    const weaponMold = await hre.viem.deployContract("WeaponMold", [
       owner.account.address,
     ]);
 
-    // Deploy Weapon contract with WeaponFactory address
+    // Deploy Weapon contract with WeaponMold address
     const weapon = await hre.viem.deployContract("Weapon", [
       owner.account.address,
-      weaponFactory.address,
+      weaponMold.address,
       server.account.address, // Use dedicated server account for XP signing
     ]);
 
@@ -67,7 +67,7 @@ describe("Weapon", function () {
       const initialTemplate = initialWeaponsData[weaponType];
 
       // Create the weapon template in the factory
-      await weaponFactory.write.setWeaponTemplate(
+      await weaponMold.write.setWeaponTemplate(
         [
           weaponType,
           initialTemplate.name,
@@ -100,7 +100,7 @@ describe("Weapon", function () {
 
     return {
       weapon,
-      weaponFactory,
+      weaponMold,
       owner,
       addr1,
       addr2,
@@ -113,7 +113,7 @@ describe("Weapon", function () {
 
   describe("Deployment", function () {
     it("Should set the right owner for weapon contract", async function () {
-      const { weapon, weaponFactory, owner } = await loadFixture(
+      const { weapon, weaponMold, owner } = await loadFixture(
         deployWeaponSystemFixture
       );
 
@@ -128,12 +128,12 @@ describe("Weapon", function () {
     });
 
     it("Should link weapon contract to factory", async function () {
-      const { weapon, weaponFactory } = await loadFixture(
+      const { weapon, weaponMold } = await loadFixture(
         deployWeaponSystemFixture
       );
 
       expect((await weapon.read.getWeaponFactory()).toLowerCase()).to.equal(
-        weaponFactory.address
+        weaponMold.address
       );
     });
   });
@@ -317,7 +317,7 @@ describe("Weapon", function () {
       const { weapon, owner } = await loadFixture(deployWeaponSystemFixture);
 
       // Deploy new factory
-      const newFactory = await hre.viem.deployContract("WeaponFactory", [
+      const newFactory = await hre.viem.deployContract("WeaponMold", [
         owner.account.address,
       ]);
 

@@ -10,17 +10,17 @@ async function main() {
     deployer.account.address
   );
 
-  const weaponFactoryAddress = "0x5fbdb2315678afecb367f032d93f642f64180aa3"; // Replace with actual weapon contract address
-  const weaponFactory = await hre.viem.getContractAt(
-    "WeaponFactory",
-    weaponFactoryAddress
+  const weaponMoldAddress = "0x5fbdb2315678afecb367f032d93f642f64180aa3"; // Replace with actual weaponMold contract address
+  const weaponMold = await hre.viem.getContractAt(
+    "WeaponMold",
+    weaponMoldAddress
   );
   const weaponType: WeaponType = "sword";
 
   const initialTemplate = initialWeaponsData[weaponType];
 
   // Create the weapon template in the factory
-  await weaponFactory.write.setWeaponTemplate(
+  await weaponMold.write.setWeaponTemplate(
     [
       weaponType,
       initialTemplate.name,

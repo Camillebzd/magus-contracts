@@ -4,7 +4,7 @@ pragma solidity ^0.8.25;
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {WeaponTypes} from "./WeaponTypes.sol";
 
-contract WeaponFactory is Ownable {
+contract WeaponMold is Ownable {
     using WeaponTypes for WeaponTypes.WeaponData;
 
     // Mapping from weapon type to base weapon template
@@ -95,7 +95,7 @@ contract WeaponFactory is Ownable {
     ) external view returns (WeaponTypes.WeaponData memory) {
         require(
             _isWeaponTypeConfigured[weaponType],
-            "WeaponFactory: Weapon type not configured"
+            "WeaponMold: Weapon type not configured"
         );
         return _weaponTemplates[weaponType];
     }
@@ -108,7 +108,7 @@ contract WeaponFactory is Ownable {
     ) external view returns (WeaponTypes.WeaponData memory) {
         require(
             _isWeaponTypeConfigured[weaponType],
-            "WeaponFactory: Weapon type not configured"
+            "WeaponMold: Weapon type not configured"
         );
         return _weaponTemplates[weaponType];
     }
