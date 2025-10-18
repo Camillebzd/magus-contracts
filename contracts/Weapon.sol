@@ -24,7 +24,9 @@ contract Weapon is ERC721, ERC721Enumerable, Ownable, EIP712 {
     
     event WeaponRequested(address indexed requester, uint256 indexed tokenId, string weaponType);
     event WeaponFactoryUpdated(address indexed oldFactory, address indexed newFactory);
+    event XPAdded(uint256 indexed tokenId, uint256 amount);
 
+    error InvalidWeaponType();
     error InvalidNonce();
     error InvalidSignature();
     error InvalidServerAddress();
@@ -42,7 +44,9 @@ contract Weapon is ERC721, ERC721Enumerable, Ownable, EIP712 {
      * @dev Mints a new weapon NFT based on weapon type from factory
      */
     function requestWeapon(string memory weaponType) external returns (uint256) {
-        require(_weaponFactory.isWeaponTypeConfigured(weaponType), "Weapon: Invalid weapon type");
+        if (!_weaponFactory.isWeaponTypeConfigured(weaponType)) {
+            revert InvalidWeaponType();
+        }
 
         uint256 tokenId = _nextTokenId++;
 
@@ -123,6 +127,8 @@ contract Weapon is ERC721, ERC721Enumerable, Ownable, EIP712 {
 
         // Add XP directly to weapon data (single source of truth)
         _weapons[tokenId].xp += uint16(amount);
+
+        emit XPAdded(tokenId, amount);
     }
 
     /**
@@ -136,7 +142,9 @@ contract Weapon is ERC721, ERC721Enumerable, Ownable, EIP712 {
      * @dev Set new server address (owner only)
      */
     function setServer(address _newServer) external onlyOwner {
-        require(_newServer != address(0), "Invalid server address");
+        if (_newServer == address(0)) {
+            revert InvalidServerAddress();
+        }
         server = _newServer;
     }
 

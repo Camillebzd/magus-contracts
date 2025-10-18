@@ -337,12 +337,8 @@ describe("Weapon", function () {
     });
   });
 
-  describe("Weapon Management", function () {
-    it("Should allow owner to level up weapons", async function () {
-      // WIP
-    });
-
-    // Test only, it will be removed for production
+  // Test only, it will be removed for production
+  describe("Weapon Management (only for testing, will be removed in production)", function () {
     it("Should allow owner to update weapon data", async function () {
       const { weapon, addr1 } = await loadFixture(
         deployWeaponSystemFixture
