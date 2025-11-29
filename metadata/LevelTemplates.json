@@ -1,0 +1,196 @@
+{
+  "sword": {
+    "1": {
+      "xpRequiredPerLevel": 20,
+      "materialCost": 10,
+      "materialToken": "0xMaterialTokenAddress",
+      "baseStatBonus": {
+        "health": 2,
+        "speed": 2,
+        "mind": 1,
+        "handling": 1,
+        "offensiveStats": {
+          "sharpDamage": 3,
+          "bluntDamage": 0,
+          "burnDamage": 0,
+          "pierce": 1,
+          "lethality": 1
+        },
+        "defensiveStats": {
+          "sharpResistance": 2,
+          "bluntResistance": 0,
+          "burnResistance": 1,
+          "guard": 1
+        }
+      }
+    },
+    "2": {
+      "xpRequiredPerLevel": 0,
+      "materialCost": 0,
+      "materialToken": "0xMaterialTokenAddress",
+      "baseStatBonus": {
+        "health": 0,
+        "speed": 0,
+        "mind": 0,
+        "handling": 0,
+        "offensiveStats": {
+          "sharpDamage": 0,
+          "bluntDamage": 0,
+          "burnDamage": 0,
+          "pierce": 0,
+          "lethality": 0
+        },
+        "defensiveStats": {
+          "sharpResistance": 0,
+          "bluntResistance": 0,
+          "burnResistance": 0,
+          "guard": 0
+        }
+      }
+    },
+    "3": {
+      "xpRequiredPerLevel": 0,
+      "materialCost": 0,
+      "materialToken": "0xMaterialTokenAddress",
+      "baseStatBonus": {
+        "health": 0,
+        "speed": 0,
+        "mind": 0,
+        "handling": 0,
+        "offensiveStats": {
+          "sharpDamage": 0,
+          "bluntDamage": 0,
+          "burnDamage": 0,
+          "pierce": 0,
+          "lethality": 0
+        },
+        "defensiveStats": {
+          "sharpResistance": 0,
+          "bluntResistance": 0,
+          "burnResistance": 0,
+          "guard": 0
+        }
+      }
+    },
+    "4": {
+      "xpRequiredPerLevel": 0,
+      "materialCost": 0,
+      "materialToken": "0xMaterialTokenAddress",
+      "baseStatBonus": {
+        "health": 0,
+        "speed": 0,
+        "mind": 0,
+        "handling": 0,
+        "offensiveStats": {
+          "sharpDamage": 0,
+          "bluntDamage": 0,
+          "burnDamage": 0,
+          "pierce": 0,
+          "lethality": 0
+        },
+        "defensiveStats": {
+          "sharpResistance": 0,
+          "bluntResistance": 0,
+          "burnResistance": 0,
+          "guard": 0
+        }
+      }
+    },
+    "5": {
+      "xpRequiredPerLevel": 0,
+      "materialCost": 0,
+      "materialToken": "0xMaterialTokenAddress",
+      "baseStatBonus": {
+        "health": 0,
+        "speed": 0,
+        "mind": 0,
+        "handling": 0,
+        "offensiveStats": {
+          "sharpDamage": 0,
+          "bluntDamage": 0,
+          "burnDamage": 0,
+          "pierce": 0,
+          "lethality": 0
+        },
+        "defensiveStats": {
+          "sharpResistance": 0,
+          "bluntResistance": 0,
+          "burnResistance": 0,
+          "guard": 0
+        }
+      }
+    },
+    "6": {
+      "xpRequiredPerLevel": 0,
+      "materialCost": 0,
+      "materialToken": "0xMaterialTokenAddress",
+      "baseStatBonus": {
+        "health": 0,
+        "speed": 0,
+        "mind": 0,
+        "handling": 0,
+        "offensiveStats": {
+          "sharpDamage": 0,
+          "bluntDamage": 0,
+          "burnDamage": 0,
+          "pierce": 0,
+          "lethality": 0
+        },
+        "defensiveStats": {
+          "sharpResistance": 0,
+          "bluntResistance": 0,
+          "burnResistance": 0,
+          "guard": 0
+        }
+      }
+    },
+    "7": {
+      "xpRequiredPerLevel": 0,
+      "materialCost": 0,
+      "materialToken": "0xMaterialTokenAddress",
+      "baseStatBonus": {
+        "health": 0,
+        "speed": 0,
+        "mind": 0,
+        "handling": 0,
+        "offensiveStats": {
+          "sharpDamage": 0,
+          "bluntDamage": 0,
+          "burnDamage": 0,
+          "pierce": 0,
+          "lethality": 0
+        },
+        "defensiveStats": {
+          "sharpResistance": 0,
+          "bluntResistance": 0,
+          "burnResistance": 0,
+          "guard": 0
+        }
+      }
+    },
+    "8": {
+      "xpRequiredPerLevel": 0,
+      "materialCost": 0,
+      "materialToken": "0xMaterialTokenAddress",
+      "baseStatBonus": {
+        "health": 0,
+        "speed": 0,
+        "mind": 0,
+        "handling": 0,
+        "offensiveStats": {
+          "sharpDamage": 0,
+          "bluntDamage": 0,
+          "burnDamage": 0,
+          "pierce": 0,
+          "lethality": 0
+        },
+        "defensiveStats": {
+          "sharpResistance": 0,
+          "bluntResistance": 0,
+          "burnResistance": 0,
+          "guard": 0
+        }
+      }
+    }
+  }
+}

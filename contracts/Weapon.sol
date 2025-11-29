@@ -9,16 +9,18 @@ import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {WeaponTypes} from "./WeaponTypes.sol";
 import {WeaponMetadata} from "./WeaponMetadata.sol";
 import {WeaponMold} from "./WeaponMold.sol";
+import {WeaponAnvil} from "./WeaponAnvil.sol";
 
 contract Weapon is ERC721, ERC721Enumerable, Ownable, EIP712 {
     uint256 private _nextTokenId;
     WeaponMold private _weaponMold;
+    WeaponAnvil private _weaponAnvil;
 
     // Mapping from token ID to weapon data
     mapping(uint256 => WeaponTypes.WeaponData) private _weapons;
 
     // XP system variables
-    address public server;
+    address private _server;
     mapping(uint256 => uint256) public nonces;
     bytes32 public constant ADD_XP_TYPEHASH =
         keccak256("addXP(uint256 tokenId,uint256 amount,uint256 nonce)");
@@ -28,24 +30,72 @@ contract Weapon is ERC721, ERC721Enumerable, Ownable, EIP712 {
         uint256 indexed tokenId,
         string weaponType
     );
-    event WeaponMoldUpdated(
-        address indexed oldMold,
-        address indexed newMold
+    event WeaponMoldUpdated(address indexed oldMold, address indexed newMold);
+    event WeaponAnvilUpdated(
+        address indexed oldAnvil,
+        address indexed newAnvil
     );
+    event ServerUpdated(address indexed oldServer, address indexed newServer);
     event XPAdded(uint256 indexed tokenId, uint256 amount);
 
     error InvalidWeaponType();
     error InvalidNonce();
     error InvalidSignature();
-    error InvalidServerAddress();
+    error InvalidAddress();
+
+    modifier onlyAnvil() {
+        if (msg.sender != address(_weaponAnvil)) {
+            revert("Only WeaponAnvil can call this function");
+        }
+        _;
+    }
+
+    modifier onlyAnvilOrOwner() {
+        if (msg.sender != address(_weaponAnvil) && msg.sender != owner()) {
+            revert("Only WeaponAnvil or Owner can call this function");
+        }
+        _;
+    }
 
     constructor(
         address initialOwner,
+        address serverAddress,
         address weaponMoldAddress,
-        address serverAddress
+        address weaponAnvilAddress
     ) ERC721("Weapon", "WPN") Ownable(initialOwner) EIP712("XP", "1.0") {
+        _server = serverAddress;
         _weaponMold = WeaponMold(weaponMoldAddress);
-        server = serverAddress;
+        _weaponAnvil = WeaponAnvil(weaponAnvilAddress);
+    }
+
+    /**
+     * @dev Updates the weapon mold address (owner only)
+     */
+    function setWeaponMold(address newWeaponMold) external onlyOwner {
+        address oldMold = address(_weaponMold);
+        _weaponMold = WeaponMold(newWeaponMold);
+        emit WeaponMoldUpdated(oldMold, newWeaponMold);
+    }
+
+    /**
+     * @dev Updates the WeaponAnvil contract address (owner only)
+     */
+    function setWeaponAnvil(address newWeaponAnvil) external onlyOwner {
+        address oldAnvil = address(_weaponAnvil);
+        _weaponAnvil = WeaponAnvil(newWeaponAnvil);
+        emit WeaponAnvilUpdated(oldAnvil, newWeaponAnvil);
+    }
+
+    /**
+     * @dev Set new server address (owner only)
+     */
+    function setServer(address _newServer) external onlyOwner {
+        if (_newServer == address(0)) {
+            revert InvalidAddress();
+        }
+        address oldServer = _server;
+        _server = _newServer;
+        emit ServerUpdated(oldServer, _newServer);
     }
 
     /**
@@ -87,19 +137,24 @@ contract Weapon is ERC721, ERC721Enumerable, Ownable, EIP712 {
     }
 
     /**
-     * @dev Updates the weapon mold address (owner only)
-     */
-    function setWeaponMold(address newWeaponMold) external onlyOwner {
-        address oldMold = address(_weaponMold);
-        _weaponMold = WeaponMold(newWeaponMold);
-        emit WeaponMoldUpdated(oldMold, newWeaponMold);
-    }
-
-    /**
      * @dev Returns the current weapon mold address
      */
     function getWeaponMold() external view returns (address) {
         return address(_weaponMold);
+    }
+
+    /**
+     * @dev Returns the current weapon anvil address
+     */
+    function getWeaponAnvil() external view returns (address) {
+        return address(_weaponAnvil);
+    }
+
+    /**
+     * @dev Returns the current server address
+     */
+    function getServer() external view returns (address) {
+        return _server;
     }
 
     /**
@@ -134,7 +189,7 @@ contract Weapon is ERC721, ERC721Enumerable, Ownable, EIP712 {
         bytes32 hash = _hashTypedDataV4(structHash);
         address signer = ECDSA.recover(hash, signature);
 
-        if (signer != server) {
+        if (signer != _server) {
             revert InvalidSignature();
         }
 
@@ -155,25 +210,15 @@ contract Weapon is ERC721, ERC721Enumerable, Ownable, EIP712 {
     }
 
     /**
-     * @dev Set new server address (owner only)
-     */
-    function setServer(address _newServer) external onlyOwner {
-        if (_newServer == address(0)) {
-            revert InvalidServerAddress();
-        }
-        server = _newServer;
-    }
-
-    /**
-     * @notice This is only for testing purposes, it should not be used in production
-     * @dev Updates weapon data (only owner can update)
+     * @notice In production, only the WeaponAnvil contract should be able to call this
+     * @dev Updates weapon data
      * @param tokenId The ID of the weapon to update
      * @param weaponData The new weapon data to set
      */
     function updateWeapon(
         uint256 tokenId,
         WeaponTypes.WeaponData memory weaponData
-    ) public onlyOwner {
+    ) public onlyAnvilOrOwner {
         _requireOwned(tokenId);
         _weapons[tokenId] = weaponData;
     }

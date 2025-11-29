@@ -2,47 +2,10 @@ import { expect } from "chai";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import hre from "hardhat";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
-import { type Address, type WalletClient, type PublicClient } from "viem";
 import initialWeaponsData from "../metadata/InitialWeaponsData.json";
-import type { Attribute, NFTMetadata, WeaponType } from "../types/WeaponTypes";
-
-// Helper function to sign XP messages for weapons
-async function signWeaponXP(
-  server: WalletClient,
-  weapon: any, // Weapon contract instance
-  publicClient: PublicClient,
-  tokenId: bigint,
-  amount: bigint
-) {
-  // EIP-712 typed data structure
-  const domain = {
-    name: "XP",
-    version: "1.0",
-    chainId: await publicClient.getChainId(),
-    verifyingContract: weapon.address,
-  };
-  const types = {
-    addXP: [
-      { name: "tokenId", type: "uint256" },
-      { name: "amount", type: "uint256" },
-      { name: "nonce", type: "uint256" },
-    ],
-  };
-  const nonce = await weapon.read.nonces([tokenId]);
-  const message = {
-    tokenId,
-    amount,
-    nonce,
-  };
-
-  return await server.signTypedData({
-    account: server.account!,
-    domain,
-    types,
-    primaryType: "addXP",
-    message,
-  });
-}
+import type { Attribute, NFTMetadata } from "../types/WeaponTypes";
+import { setWeaponTemplate } from "../scripts/utils/SetupMold";
+import { signWeaponXP } from "../scripts/utils/SignXP";
 
 describe("Weapon", function () {
   async function deployWeaponSystemFixture() {
@@ -54,31 +17,20 @@ describe("Weapon", function () {
       owner.account.address,
     ]);
 
+    // Deploy WeaponAnvil
+    const weaponAnvil = await hre.viem.deployContract("WeaponAnvil", [
+      owner.account.address,
+    ]);
+
+    weaponAnvil.write.levelUp([1n], { account: owner.account });
+
     // Deploy Weapon contract with WeaponMold address
     const weapon = await hre.viem.deployContract("Weapon", [
       owner.account.address,
-      weaponMold.address,
       server.account.address, // Use dedicated server account for XP signing
+      weaponMold.address,
+      weaponAnvil.address,
     ]);
-
-    // Helper function to setup the initial templates in the mold
-    const setupInitialWeaponTemplates = async (weaponType: WeaponType, account: any = owner.account) => {
-      // Get the initial template data for the specified weapon type
-      const initialTemplate = initialWeaponsData[weaponType];
-
-      // Create the weapon template in the mold
-      await weaponMold.write.setWeaponTemplate(
-        [
-          weaponType,
-          initialTemplate.name,
-          initialTemplate.description,
-          initialTemplate.image,
-          initialTemplate.stats,
-          initialTemplate.abilities,
-        ],
-        { account: account }
-      );
-    };
 
     // Helper function to parse json and retrieve attributes
     const parseWeaponAttributes = (weaponData: string) => {
@@ -96,7 +48,7 @@ describe("Weapon", function () {
     };
 
     // Setup initial templates for sword
-    await setupInitialWeaponTemplates("sword");
+    await setWeaponTemplate(weaponMold.address, owner.account, "sword");
 
     return {
       weapon,
@@ -106,7 +58,6 @@ describe("Weapon", function () {
       addr2,
       server,
       publicClient,
-      setupInitialWeaponTemplates,
       parseWeaponAttributes,
     };
   }
